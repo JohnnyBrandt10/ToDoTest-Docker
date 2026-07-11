@@ -8,6 +8,7 @@ router.get("/", async (req, res) => {
     const [rows] = await pool.query("SELECT * FROM tasks ORDER BY id DESC");
     res.json(rows);
   } catch (err) {
+    console.error("Erreur DB:", err);
     res.status(500).json({ error: "Erreur lors de la récupération des tâches" });
   }
 });
