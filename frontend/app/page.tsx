@@ -16,22 +16,26 @@ export default function Home() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    let ignore = false;
+  let ignore = false;
 
-    const loadTasks = async () => {
+  const loadTasks = async () => {
+    try {
       const res = await fetch(`${API_URL}/tasks`);
       const data = await res.json();
       if (!ignore) {
         setTasks(data);
       }
-    };
+    } catch (err) {
+      console.error("Erreur chargement:", err);
+    }
+  };
 
-    loadTasks();
+  loadTasks();
 
-    return () => {
-      ignore = true;
-    };
-  }, []);
+  return () => {
+    ignore = true;
+  };
+}, []);
 
   const refreshTasks = async () => {
     const res = await fetch(`${API_URL}/tasks`);
@@ -39,22 +43,23 @@ export default function Home() {
     setTasks(data);
   };
 
-  const addTask = async () => {
-    if (!title.trim()) return;
-    setError("");
-    try {
-      const res = await fetch(`${API_URL}/tasks`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title }),
-      });
-      if (!res.ok) throw new Error();
-      setTitle("");
-      refreshTasks();
-    } catch {
-      setError("Impossible d'ajouter la tâche, réessaie.");
-    }
-  };
+ const addTask = async () => {
+  if (!title.trim()) return;
+  setError("");
+  try {
+    const res = await fetch(`${API_URL}/tasks`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ title }),
+    });
+    if (!res.ok) throw new Error();
+    setTitle("");
+    refreshTasks();
+  } catch (err) {
+    console.error("Erreur ajout:", err);
+    setError("Impossible d'ajouter la tâche, réessaie.");
+  }
+};
 
   const toggleTask = async (id: number, done: boolean) => {
     await fetch(`${API_URL}/tasks/${id}`, {
